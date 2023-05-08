@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -303,8 +304,9 @@ func convertKoboldResponseToOpenAIChatResponse(koboldResp koboldAIPollResponse) 
 		Content: responseText,
 	}
 
+	id, _ := uuid.NewUUID()
 	return openAIChatResponse{
-		ID:      "chatcmpl-123",
+		ID:      id.String(),
 		Object:  "chat.completion",
 		Created: int(time.Now().Unix()),
 		Choices: []openAIChatChoice{
@@ -325,8 +327,9 @@ func convertKoboldResponseToOpenAIChatResponse(koboldResp koboldAIPollResponse) 
 func convertKoboldResponseToOpenAICompletionResponse(koboldResp koboldAIPollResponse) openAICompletionResponse {
 	responseText := koboldResp.Generations[0].Text
 
+	id, _ := uuid.NewUUID()
 	return openAICompletionResponse{
-		ID:      "text-davinci-002",
+		ID:      id.String(),
 		Object:  "text.completion",
 		Created: int(time.Now().Unix()),
 		Choices: []openAICompletionChoice{
