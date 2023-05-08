@@ -35,15 +35,6 @@ type openAICompletionRequest struct {
 	Stop        []string `json:"stop,omitempty"`
 }
 
-type generation struct {
-	WorkerID   string `json:"worker_id"`
-	WorkerName string `json:"worker_name"`
-	Model      string `json:"model"`
-	State      string `json:"state"`
-	Text       string `json:"text"`
-	Seed       int    `json:"seed"`
-}
-
 type openAIChatResponse struct {
 	ID      string             `json:"id"`
 	Object  string             `json:"object"`
@@ -104,6 +95,15 @@ type koboldAIPollResponse struct {
 	Kudos         float32      `json:"kudos"`
 	IsPossible    bool         `json:"is_possible"`
 	Generations   []generation `json:"generations"`
+}
+
+type generation struct {
+	WorkerID   string `json:"worker_id"`
+	WorkerName string `json:"worker_name"`
+	Model      string `json:"model"`
+	State      string `json:"state"`
+	Text       string `json:"text"`
+	Seed       int    `json:"seed"`
 }
 
 type koboldAIAsyncResponse struct {
@@ -340,7 +340,7 @@ func convertKoboldResponseToOpenAICompletionResponse(koboldResp koboldAIPollResp
 				FinishReason: "stop",
 			},
 		},
-		Model: "davinci-codex",
+		Model: koboldResp.Generations[0].Model,
 		Usage: openAIUsage{
 			PromptTokens:     0,
 			CompletionTokens: 0,
