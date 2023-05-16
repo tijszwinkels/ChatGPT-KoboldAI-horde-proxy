@@ -196,7 +196,7 @@ func convertOpenAIChatRequestToKobold(chatReq openAIChatRequest) koboldAIRequest
 		Models:         []string{chatReq.Model},
 		TrustedWorkers: false,
 		Params: params{
-			MaxContextLength: 1024,
+			MaxContextLength: 2048,
 			MaxLength:        100,
 		},
 	}
@@ -208,7 +208,7 @@ func convertOpenAICompletionRequestToKobold(completionReq openAICompletionReques
 		Models:         []string{completionReq.Model},
 		TrustedWorkers: false,
 		Params: params{
-			MaxContextLength: 1024,
+			MaxContextLength: 2048,
 			MaxLength:        completionReq.MaxTokens,
 		},
 	}
@@ -298,7 +298,26 @@ func pollKoboldAPI(id string) (koboldAIPollResponse, error) {
 }
 
 func convertKoboldResponseToOpenAIChatResponse(koboldResp koboldAIPollResponse) openAIChatResponse {
-	responseText := koboldResp.Generations[0].Text
+	// Get the full text of the response
+	fullResponseText := koboldResp.Generations[0].Text
+
+	// Split the text into lines
+	lines := strings.Split(fullResponseText, "\n")
+
+	// Look for the first 'assistant' line and remove the 'assistant:' prefix
+	var responseText string
+	for _, line := range lines {
+		if strings.HasPrefix(line, "assistant: ") {
+			responseText = strings.TrimPrefix(line, "assistant: ")
+			break
+		}
+	}
+
+	// If no 'assistant' line is found, there's no assistant response to return
+	if responseText == "" {
+		return openAIChatResponse{}
+	}
+
 	assistantMessage := openAIChatMessage{
 		Role:    "assistant",
 		Content: responseText,
@@ -317,9 +336,9 @@ func convertKoboldResponseToOpenAIChatResponse(koboldResp koboldAIPollResponse) 
 			},
 		},
 		Usage: openAIUsage{
-			PromptTokens:     len(koboldResp.Generations[0].Text),
+			PromptTokens:     len(fullResponseText),
 			CompletionTokens: len(responseText),
-			TotalTokens:      len(koboldResp.Generations[0].Text) + len(responseText),
+			TotalTokens:      len(fullResponseText) + len(responseText),
 		},
 	}
 }
