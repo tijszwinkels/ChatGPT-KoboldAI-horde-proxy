@@ -181,7 +181,8 @@ func completionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	completionResp := convertKoboldResponseToOpenAICompletionResponse(koboldResp)
-	//w.Header().Set("Content-Type", "application/json")
+	fmt.Printf("Completion Response: %+v\n", completionResp)
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(completionResp)
 }
 
